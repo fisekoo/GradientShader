@@ -16,7 +16,7 @@ Shader "Unlit/GradientSky"{ // path (not asset path) (identifier) (name)
             // ZTest On
             // ZWrite On
             // Blend x y
-            Cull front
+            Cull Front
             CGPROGRAM // Actual code
             // what functions to use for what
             #pragma vertex vert // use vert function for vertex shader
@@ -25,10 +25,10 @@ Shader "Unlit/GradientSky"{ // path (not asset path) (identifier) (name)
             // bunch of Unity utility, functions and variables
             #include "UnityCG.cginc"
 
-            struct MeshData{ // struct of vertex
+            struct vertexdata{ // struct of vertex
                 // float(number) = float that takes (number) amount of input
                 // float2 = 1,1; float3 = 1,1,1; float4 = 1,1,1,1...
-                float4 vertex : POSITION; // position of vertex
+                float4 position : POSITION; // position of vertex
                 float3 normal : NORMAL; // normal of vertex
                 float4 tangent : TANGENT; // tangent of vertex
                 float4 color : COLOR; // color of vertex
@@ -39,9 +39,9 @@ Shader "Unlit/GradientSky"{ // path (not asset path) (identifier) (name)
             };
 
             // struct for sending data from vertex shader to fragment shader
-            struct Interpolators{
+            struct interpolators{
                 float4 vertex : SV_POSITION; // clip space vertex position
-                float2 uv : TEXCOORD0; // arbitrary data we want to send
+                float2 coord : TEXCOORD0; // arbitrary data we want to send
             };
 
             // property variable declaration
@@ -53,18 +53,18 @@ Shader "Unlit/GradientSky"{ // path (not asset path) (identifier) (name)
             float1 _Center;
             float1 _Angle;
             // vertex shader - foreach(vertex)
-            Interpolators vert (MeshData v){         
-                Interpolators o; // new Interpolators object (output)
+            interpolators vert (vertexdata v){         
+                interpolators o; // new Interpolators object (output)
                 // UNITY_MATRIX_MVP model-view-projection (local to clip space)
-                o.vertex = UnityObjectToClipPos(v.vertex); // transforms from local to clip space
+                o.vertex = UnityObjectToClipPos(v.position); // transforms from local to clip space
                 //o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                o.uv = v.uv;
+                o.coord = v.uv;
                 return o;
             }
-            float2 rotateUV(Interpolators i, float1 rotation){
+            float2 rotateUV(interpolators i, float1 rotation){
                 return float2(
-                    cos(rotation) * (i.uv.x - .5) + sin(rotation) * (i.uv.y - .5) + .5,
-                    cos(rotation) * (i.uv.y - .5) - sin(rotation) * (i.uv.x - .5) + .5
+                    cos(rotation) * (i.coord.x - .5) + sin(rotation) * (i.coord.y - .5) + .5,
+                    cos(rotation) * (i.coord.y - .5) - sin(rotation) * (i.coord.x - .5) + .5
                 );
             }
             // float (32-bit float)
@@ -72,8 +72,8 @@ Shader "Unlit/GradientSky"{ // path (not asset path) (identifier) (name)
             // fixed (11-bit, fixed-point, kinda, ish, mostly not used?)
 
             // fragment shader - foreach(fragment)
-            float4 frag (Interpolators i) : SV_Target{
-                float2 coords = i.uv;
+            float4 frag (interpolators i) : SV_Target{
+                float2 coords = i.coord;
                 coords = rotateUV(i,(_Angle * (UNITY_TWO_PI/360)));
                 const float4 t = smoothstep(0 + _Threshold, 1-_Threshold, coords.y + _Center);
                 float4 c = lerp(_BottomColor, _TopColor, t);
