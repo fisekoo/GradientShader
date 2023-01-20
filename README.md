@@ -10,7 +10,7 @@ This is the first shader that i made! I'm currently learning how to write shader
 + 〰️Adjust threshold
 + 🌡Change center of gradient
 + 🔄Change angle
-+ ☀️Skybox support! [Usage](https://github.com/fisekoo/GradientShader/main/README.md#%EF%B8%8F-skybox-gradient)
++ ☀️Skybox support! [Usage](https://github.com/fisekoo/GradientShader#%EF%B8%8F-skybox-gradient)
 
 ## Initialization 💻
 + Download and add both .shader files to your project.
